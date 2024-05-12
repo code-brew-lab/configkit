@@ -37,14 +37,12 @@ func (s *settings[TData]) Load() (*TData, error) {
 
 	confValue := reflect.ValueOf(conf)
 
-	if err := s.applyEnvOverrides(confValue.Elem(), ""); err != nil {
-		return nil, err
-	}
+	s.applyEnvOverrides(confValue.Elem(), "")
 
 	return conf, nil
 }
 
-func (s *settings[TData]) applyEnvOverrides(v reflect.Value, prefix string) error {
+func (s *settings[TData]) applyEnvOverrides(v reflect.Value, prefix string) {
 	fields := reflect.VisibleFields(v.Type())
 
 	for i, field := range fields {
@@ -62,8 +60,7 @@ func (s *settings[TData]) applyEnvOverrides(v reflect.Value, prefix string) erro
 			continue
 		}
 
-		fmt.Println(p)
-		envVal, err := s.envReader.ReadSafe(s.convertorFunc(p))
+		env, err := s.envReader.ReadSafe(s.convertorFunc(p))
 		if err != nil {
 			continue
 		}
@@ -72,11 +69,14 @@ func (s *settings[TData]) applyEnvOverrides(v reflect.Value, prefix string) erro
 			continue
 		}
 
-		convertedValue := reflect.ValueOf(envVal).Convert(value.Type())
-		value.Set(convertedValue)
-	}
+		envVal := reflect.ValueOf(env)
+		if envVal.Kind() != value.Kind() {
+			continue
+		}
 
-	return nil
+		convertedEnv := envVal.Convert(value.Type())
+		value.Set(convertedEnv)
+	}
 }
 
 func (s *settings[TData]) isEligibleForEnv(t reflect.Type) bool {

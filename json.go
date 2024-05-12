@@ -8,7 +8,7 @@ import (
 type jsonRW[TData any] struct {
 }
 
-func NewJsonRW[TData any]() StructReaderWriter[TData] {
+func newJsonRW[TData any]() StructReaderWriter[TData] {
 	return &jsonRW[TData]{}
 }
 

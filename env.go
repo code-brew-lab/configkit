@@ -8,7 +8,7 @@ import (
 type osEnvRW struct {
 }
 
-func NewOsEnvRW() EnvReaderWriter {
+func newOsEnvRW() EnvReaderWriter {
 	return &osEnvRW{}
 }
 
